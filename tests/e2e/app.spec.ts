@@ -172,6 +172,8 @@ test('@claim:free-demo sample lesson opens without an account', async ({ page })
   await expect(page.locator('#demo-banner')).toBeVisible();
   await expect(page.locator('#lesson-title')).toHaveValue('Notice, wonder, connect');
   await expect(page.locator('body')).not.toContainText(/sign in|credit card|payment/i);
+  const demoA11y = await new AxeBuilder({ page: page as never }).analyze();
+  expect(demoA11y.violations).toEqual([]);
   await page.locator('#lesson-title').fill('Changed sample');
   await page.getByRole('button', { name: 'Reset demo' }).click();
   await expect(page.locator('#lesson-title')).toHaveValue('Notice, wonder, connect');
