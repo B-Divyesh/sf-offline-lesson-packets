@@ -8,6 +8,8 @@ analytics, or server-side student records.
 
 Live site: <https://offline-lesson-packets.sociobot.in>
 
+One-click sample: <https://offline-lesson-packets.sociobot.in/?demo=1>
+
 ## Who it is for
 
 Teachers, tutors, librarians, and facilitators who need a durable activity that
@@ -30,7 +32,7 @@ are checked before use, and lesson text is never interpreted as HTML.
 Requirements: Node.js 20+ and npm.
 
 ```sh
-npm install
+npm ci
 npm run dev
 ```
 
@@ -53,12 +55,20 @@ factory worker image.
 npm test          # unit tests, desktop E2E, mobile E2E, axe checks
 npm run test:unit
 npm run test:e2e
+npm run typecheck
+npm run lint
 ```
+
+The test suite builds first, checks bundle and response-policy budgets, and then
+runs Chromium at desktop and 390px mobile sizes. Testable product statements
+and their exact sandbox commands are listed in `.factory/claims.json`.
 
 ## Project notes
 
 - `.factory/brief.json` records the product scope.
 - `.factory/design.md` records the visual system and generated-art provenance.
+- `.factory/demo.md` documents the isolated sample-data mode and reset flow.
+- `.factory/claims.json` maps every product claim to one browser test.
 - `.factory/handoff.md` records verification results and known gaps.
 - `assets/src/` contains the original generated hero and its exact prompt.
 

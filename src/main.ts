@@ -12,6 +12,9 @@ import {
 } from './model';
 
 const DRAFT_KEY = 'lesson-packet:teacher-draft:v1';
+const DEMO_DRAFT_KEY = 'demo:lesson-packet:teacher-draft:v1';
+const isDemo = new URLSearchParams(location.search).get('demo') === '1';
+const activeDraftKey = isDemo ? DEMO_DRAFT_KEY : DRAFT_KEY;
 function mustFind<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
   if (!element) throw new Error(`The packet composer could not find ${selector}.`);
@@ -31,6 +34,7 @@ let packet = loadDraft();
 let previewTimer = 0;
 let saveTimer = 0;
 let toastTimer = 0;
+let previewReady = false;
 
 const fields = {
   title: document.querySelector<HTMLInputElement>('#lesson-title')!,
@@ -41,10 +45,11 @@ const fields = {
   exitPrompt: document.querySelector<HTMLTextAreaElement>('#exit-prompt')!,
   allowLocalSave: document.querySelector<HTMLInputElement>('#remember-responses')!,
 };
+const minutesFeedback = mustFind<HTMLElement>('#time-feedback');
 
 function loadDraft(): Packet {
   try {
-    const raw = localStorage.getItem(DRAFT_KEY);
+    const raw = localStorage.getItem(activeDraftKey);
     return raw ? sanitizeImportedPacket(JSON.parse(raw)) : starterPacket();
   } catch {
     return starterPacket();
@@ -64,19 +69,35 @@ function setFormValues(): void {
 function updatePacketFromForm(): void {
   packet.title = fields.title.value;
   packet.subject = fields.subject.value;
-  const minutes = Number(fields.minutes.value);
-  packet.minutes = fields.minutes.value && Number.isFinite(minutes) ? Math.min(300, Math.max(1, Math.round(minutes))) : null;
+  packet.minutes = normalizeMinutes();
   packet.instructions = fields.instructions.value;
   packet.reflection = fields.reflection.value;
   packet.exitPrompt = fields.exitPrompt.value;
   packet.allowLocalSave = fields.allowLocalSave.checked;
 }
 
+function normalizeMinutes(): number | null {
+  if (!fields.minutes.value) {
+    minutesFeedback.textContent = 'Use a whole number from 1 to 300.';
+    return null;
+  }
+  const entered = fields.minutes.valueAsNumber;
+  if (!Number.isFinite(entered)) return null;
+  const normalized = Math.min(300, Math.max(1, Math.round(entered)));
+  if (normalized !== entered) {
+    fields.minutes.value = String(normalized);
+    minutesFeedback.textContent = `Time adjusted to ${normalized} ${normalized === 1 ? 'minute' : 'minutes'}.`;
+  } else {
+    minutesFeedback.textContent = 'Use a whole number from 1 to 300.';
+  }
+  return normalized;
+}
+
 function activityLabel(type: ActivityType): string {
   return { checklist: 'Checklist', sort: 'Put in order', write: 'Short response' }[type];
 }
 
-function renderActivities(focusId?: string): void {
+function renderActivities(focusSelector?: string): void {
   activitiesRoot.replaceChildren();
   emptyActivities.hidden = packet.activities.length > 0;
   packet.activities.forEach((activity, activityIndex) => {
@@ -151,7 +172,17 @@ function renderActivities(focusId?: string): void {
     }
     activitiesRoot.append(card);
   });
-  if (focusId) requestAnimationFrame(() => document.getElementById(focusId)?.focus());
+  if (focusSelector) requestAnimationFrame(() => document.querySelector<HTMLElement>(focusSelector)?.focus());
+}
+
+function activityControlSelector(activityId: string, preferredAction: 'move-up' | 'move-down' | 'remove'): string {
+  const card = `[data-id="${CSS.escape(activityId)}"]`;
+  if (preferredAction === 'remove') return `${card} [data-action="remove"]`;
+  const index = packet.activities.findIndex((activity) => activity.id === activityId);
+  const preferredIsEnabled = preferredAction === 'move-up' ? index > 0 : index < packet.activities.length - 1;
+  if (preferredIsEnabled) return `${card} [data-action="${preferredAction}"]`;
+  const fallback = preferredAction === 'move-down' ? 'move-up' : 'move-down';
+  return `${card} [data-action="${fallback}"]:not(:disabled)`;
 }
 
 function scheduleSaveAndPreview(): void {
@@ -159,17 +190,18 @@ function scheduleSaveAndPreview(): void {
   window.clearTimeout(saveTimer);
   saveTimer = window.setTimeout(() => {
     try {
-      localStorage.setItem(DRAFT_KEY, JSON.stringify(packet));
-      draftStatus.textContent = 'Draft saved on this device';
+      localStorage.setItem(activeDraftKey, JSON.stringify(packet));
+      draftStatus.textContent = isDemo ? 'Demo changes kept separate' : 'Draft saved on this device';
     } catch {
       draftStatus.textContent = 'Draft could not be saved';
     }
   }, 300);
   window.clearTimeout(previewTimer);
-  previewTimer = window.setTimeout(renderPreview, 220);
+  if (previewReady) previewTimer = window.setTimeout(renderPreview, 220);
 }
 
 function renderPreview(): void {
+  previewReady = true;
   preview.srcdoc = buildPacketHtml(packet, true);
 }
 
@@ -250,24 +282,29 @@ activitiesRoot.addEventListener('click', (event) => {
   const action = button.dataset.action;
   if (action === 'move-up' && index > 0) {
     [packet.activities[index - 1], packet.activities[index]] = [packet.activities[index], packet.activities[index - 1]];
-    renderActivities(`activity-${activity.id}`);
+    renderActivities(activityControlSelector(activity.id, 'move-up'));
     showToast(`Activity moved to position ${index}.`);
   } else if (action === 'move-down' && index < packet.activities.length - 1) {
     [packet.activities[index + 1], packet.activities[index]] = [packet.activities[index], packet.activities[index + 1]];
-    renderActivities(`activity-${activity.id}`);
+    renderActivities(activityControlSelector(activity.id, 'move-down'));
     showToast(`Activity moved to position ${index + 2}.`);
   } else if (action === 'remove') {
     if (!window.confirm(`Remove activity ${index + 1}? This cannot be undone.`)) return;
     packet.activities.splice(index, 1);
-    renderActivities();
+    const nextActivity = packet.activities[Math.min(index, packet.activities.length - 1)];
+    renderActivities(nextActivity ? `[data-id="${CSS.escape(nextActivity.id)}"] [data-action="remove"]` : '[data-add="checklist"]');
     showToast('Activity removed.');
   } else if (action === 'add-option') {
     if (activity.options.length >= 20) return showToast('Each activity can have up to 20 items.');
     activity.options.push('');
-    renderActivities(`option-${activity.id}-${activity.options.length - 1}`);
+    renderActivities(`#option-${CSS.escape(activity.id)}-${activity.options.length - 1}`);
   } else if (button.dataset.removeOption !== undefined) {
-    activity.options.splice(Number(button.dataset.removeOption), 1);
-    renderActivities();
+    const removedIndex = Number(button.dataset.removeOption);
+    activity.options.splice(removedIndex, 1);
+    const nextIndex = Math.min(removedIndex, activity.options.length - 1);
+    renderActivities(nextIndex >= 0
+      ? `[data-id="${CSS.escape(activity.id)}"] [data-remove-option="${nextIndex}"]`
+      : `[data-id="${CSS.escape(activity.id)}"] [data-action="add-option"]`);
     showToast('Item removed.');
   } else {
     return;
@@ -280,7 +317,7 @@ document.querySelectorAll<HTMLButtonElement>('[data-add]').forEach((button) => {
     if (packet.activities.length >= 20) return showToast('A packet can have up to 20 activity blocks.');
     const activity = newActivity(button.dataset.add as ActivityType);
     packet.activities.push(activity);
-    renderActivities(`activity-prompt-${activity.id}`);
+    renderActivities(`#activity-prompt-${CSS.escape(activity.id)}`);
     scheduleSaveAndPreview();
     showToast(`${activityLabel(activity.type)} added.`);
   });
@@ -307,8 +344,15 @@ importInput.addEventListener('change', async () => {
   importInput.value = '';
   if (!file) return;
   if (file.size > 200_000) return showToast('That template is too large. Choose a file under 200 KB.');
+  let parsed: unknown;
   try {
-    packet = sanitizeImportedPacket(JSON.parse(await file.text()));
+    parsed = JSON.parse(await file.text());
+  } catch {
+    showToast('That file is not valid JSON. Check the file and try again.');
+    return;
+  }
+  try {
+    packet = sanitizeImportedPacket(parsed);
     setFormValues();
     renderActivities();
     scheduleSaveAndPreview();
@@ -329,13 +373,32 @@ document.querySelector('#reset-draft')?.addEventListener('click', () => {
   showToast('A fresh example packet is ready.');
 });
 
+document.querySelector('#reset-demo')?.addEventListener('click', () => {
+  localStorage.removeItem(DEMO_DRAFT_KEY);
+  packet = starterPacket();
+  setFormValues();
+  renderActivities('#lesson-title');
+  scheduleSaveAndPreview();
+  displayErrors([]);
+  showToast('Demo reset to its sample lesson.');
+});
+
+document.querySelector('#start-real')?.addEventListener('click', () => {
+  localStorage.removeItem(DEMO_DRAFT_KEY);
+});
+
 function updateOfflineState(): void {
   const bar = document.querySelector<HTMLElement>('#offline-bar');
-  if (bar) bar.hidden = navigator.onLine;
+  const servedOffline = document.body.dataset.offlineFallback === 'true';
+  if (bar) bar.hidden = navigator.onLine && !servedOffline;
 }
 
-window.addEventListener('online', updateOfflineState);
+window.addEventListener('online', () => {
+  delete document.body.dataset.offlineFallback;
+  updateOfflineState();
+});
 window.addEventListener('offline', updateOfflineState);
+window.addEventListener('pageshow', updateOfflineState);
 updateOfflineState();
 
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
@@ -344,4 +407,14 @@ if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.
 
 setFormValues();
 renderActivities();
-renderPreview();
+document.querySelector<HTMLElement>('#demo-banner')!.hidden = !isDemo;
+if ('IntersectionObserver' in window) {
+  const previewObserver = new IntersectionObserver((entries) => {
+    if (!entries.some((entry) => entry.isIntersecting)) return;
+    renderPreview();
+    previewObserver.disconnect();
+  }, { rootMargin: '320px' });
+  previewObserver.observe(preview);
+} else {
+  renderPreview();
+}

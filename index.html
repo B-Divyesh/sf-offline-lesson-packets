@@ -8,6 +8,13 @@
     <title>Lesson Packet — make one-file offline activities</title>
     <link rel="canonical" href="https://offline-lesson-packets.sociobot.in/" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Lesson Packet — make one-file offline activities" />
+    <meta property="og:description" content="Build one private interactive lesson packet and give learners a file that works offline." />
+    <meta property="og:url" content="https://offline-lesson-packets.sociobot.in/" />
+    <meta property="og:image" content="https://offline-lesson-packets.sociobot.in/assets/lesson-packet-social.webp" />
+    <meta name="twitter:card" content="summary_large_image" />
     <link rel="preload" as="image" href="/assets/hero-risograph-720.webp" type="image/webp" media="(max-width: 720px)" />
     <script type="module" src="/src/main.ts"></script>
   </head>
@@ -16,12 +23,17 @@
     <div class="offline-bar" id="offline-bar" role="status" hidden>
       You’re offline. The composer still works; your draft stays on this device.
     </div>
+    <div class="demo-banner" id="demo-banner" hidden>
+      <strong>Demo — sample data, nothing is saved to your real draft</strong>
+      <span><button id="reset-demo" type="button">Reset demo</button><a id="start-real" href="/#composer">Start for real</a></span>
+    </div>
     <header class="site-header">
       <a class="wordmark" href="/" aria-label="Lesson Packet home">
         <span class="wordmark-mark" aria-hidden="true">LP</span>
         <span>Lesson Packet</span>
       </a>
       <nav aria-label="Main navigation">
+        <a href="/?demo=1">Demo</a>
         <a href="#how-it-works">How it works</a>
         <a class="nav-action" href="#composer">Make a packet</a>
       </nav>
@@ -31,11 +43,11 @@
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow"><span aria-hidden="true">●</span> Made for the offline classroom</p>
-          <h1 id="hero-title">A small lesson.<br /><em>One durable file.</em></h1>
-          <p class="hero-lede">Compose an activity, reflection, and exit check. Download one interactive HTML packet—no accounts, links, or student data collection.</p>
+          <h1 id="hero-title">Make one lesson packet<br /><em>that works offline.</em></h1>
+          <p class="hero-lede">Teachers build an activity, reflection, and exit check, then give learners one private file.</p>
           <div class="hero-actions">
-            <a class="button button-primary" href="#composer">Make your packet <span aria-hidden="true">↓</span></a>
-            <span class="microcopy">Free · works in a browser · prints cleanly</span>
+            <a class="button button-primary" href="/?demo=1#composer">Try it with sample data <span aria-hidden="true">↓</span></a>
+            <span class="microcopy">Opens a ready-made lesson. Free · no account · stays on this device</span>
           </div>
         </div>
         <figure class="hero-art">
@@ -85,7 +97,8 @@
                 </div>
                 <div class="field">
                   <label for="lesson-time">Estimated minutes</label>
-                  <input id="lesson-time" name="minutes" type="number" min="1" max="300" inputmode="numeric" />
+                  <input id="lesson-time" name="minutes" type="number" min="1" max="300" step="1" inputmode="numeric" aria-describedby="time-feedback" />
+                  <p class="field-hint" id="time-feedback" aria-live="polite">Use a whole number from 1 to 300.</p>
                 </div>
               </div>
               <div class="field">
@@ -130,8 +143,8 @@
             <div class="form-actions">
               <button class="button button-primary button-export" type="submit">Download lesson packet <span aria-hidden="true">↗</span></button>
               <button class="button button-secondary" type="button" id="download-template">Save editable template</button>
-              <label class="button button-secondary import-label" for="import-template">Import template</label>
               <input class="visually-hidden-file" id="import-template" type="file" accept="application/json,.json" />
+              <label class="button button-secondary import-label" for="import-template">Import template</label>
               <button class="text-button" type="button" id="reset-draft">Start over</button>
             </div>
             <p class="privacy-note"><span aria-hidden="true">◉</span> Exporting happens entirely on this device. You are responsible for content rights and accuracy.</p>
@@ -143,7 +156,7 @@
               <span>updates as you type</span>
             </div>
             <div class="preview-frame-wrap">
-              <iframe id="packet-preview" title="Interactive preview of the lesson packet" sandbox="allow-scripts allow-downloads allow-modals"></iframe>
+              <iframe id="packet-preview" title="Interactive preview of the lesson packet" loading="lazy" sandbox="allow-scripts allow-downloads allow-modals"></iframe>
             </div>
             <p class="preview-help">This is the same self-contained file your learners receive. Try the controls here; preview answers reset when the form changes.</p>
           </aside>
@@ -159,9 +172,9 @@
       <nav aria-label="Legal">
         <a href="/privacy/">Privacy</a>
         <a href="/terms/">Terms</a>
-        <a href="https://github.com/B-Divyesh/sf-offline-lesson-packets" rel="noreferrer">Source code</a>
+        <a href="https://github.com/B-Divyesh/sf-offline-lesson-packets" rel="noreferrer" aria-label="Source code (external site)">Source code ↗</a>
       </nav>
-      <p class="art-credit">Hero artwork generated for Lesson Packet with Azure AI Foundry. No tracking, accounts, or external runtime requests.</p>
+      <p class="art-credit">Hero artwork generated for Lesson Packet with Azure AI Foundry. No tracking, accounts, or external runtime requests.<br />v1.0.1 · Built by Param Factory</p>
     </footer>
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   </body>

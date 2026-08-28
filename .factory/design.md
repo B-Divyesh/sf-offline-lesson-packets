@@ -9,6 +9,11 @@ slight grain instead of glossy software chrome. Decoration explains the job:
 loose sheets become one clipped, durable packet. It never imitates an LMS
 dashboard.
 
+The page grain uses a tiny CSS radial ink pattern rather than a live SVG noise
+filter. It keeps the tactile surface while avoiding full-viewport filter work
+on low-end phones. The exact packet preview waits until it approaches the
+viewport; the hero and composer controls remain immediately available.
+
 The treatment is intentionally light-mode only. A warm paper field is central
 to the print-room metaphor, and packets themselves must preview close to their
 printed appearance. The background is painted explicitly and all text/UI
@@ -56,6 +61,8 @@ blurred generic cards. Controls are at least 44px tall with 8px between targets.
   paired arrow controls so it remains exact on touch and keyboard.
 - Every mutation has immediate prose feedback in a polite live region. Delete
   is confirmed and exports report validation errors at the relevant fields.
+- Demo mode uses a vermilion proof-strip banner. Its reset and real-work exit
+  stay visible without being confused with packet controls.
 - On a 390px phone, the preview moves below the composer and peripheral hero
   notes disappear; all authoring and export actions remain available.
 
@@ -96,3 +103,7 @@ Generation: Azure AI Foundry `factory-image` via
 `assets/src/` with its prompt sidecar, then exported to responsive WebP sizes.
 No third-party visual assets or fonts are used. Generated-image disclosure is
 included in the footer.
+
+The 1200×630 social preview and 180×180 touch icon are crops of the same
+generated hero, produced locally with ImageMagick on 2026-08-28. They add no
+new source material or license.
