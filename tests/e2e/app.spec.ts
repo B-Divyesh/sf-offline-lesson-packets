@@ -37,8 +37,12 @@ test('teacher can add a block and export a working standalone response flow', as
   const learner = await context.newPage();
   await learner.setContent(packetHtml, { waitUntil: 'load' });
   await learner.getByLabel('Your name or initials (optional)').fill('Sam');
+  await learner.getByLabel('Read the source once').check();
+  await learner.getByRole('button', { name: 'Move Notice a detail down' }).click();
   await learner.getByLabel('Response to activity 3').fill('Details connect to the main idea.');
   await learner.getByLabel(/What changed or became clearer/).fill('I slowed down and noticed evidence.');
+  const packetA11y = await new AxeBuilder({ page: learner as never }).analyze();
+  expect(packetA11y.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
   const responseDownloadPromise = learner.waitForEvent('download');
   await learner.getByRole('button', { name: 'Download my responses' }).click();
   const responseDownload = await responseDownloadPromise;
@@ -46,6 +50,8 @@ test('teacher can add a block and export a working standalone response flow', as
   const response = await readFile(responsePath!, 'utf8');
   expect(response).toContain('Learner: Sam');
   expect(response).toContain('Details connect to the main idea.');
+  expect(response).toContain('[x] Read the source once');
+  expect(response).toMatch(/1\. Ask what it might mean\n2\. Notice a detail/);
   await learner.close();
 });
 
@@ -80,4 +86,16 @@ test('privacy and terms pages are real routes', async ({ page }) => {
     await expect(page.locator('h1')).toHaveCount(1);
     await expect(page.locator('html')).toHaveAttribute('lang', 'en');
   }
+});
+
+test('composer reloads offline after its first visit', async ({ page, context }, testInfo) => {
+  test.skip(testInfo.project.name !== 'chromium', 'one service-worker check is enough');
+  await page.goto('/');
+  await page.waitForFunction(async () => (await navigator.serviceWorker.getRegistrations()).some((registration) => registration.active), undefined, { timeout: 10_000 });
+  await page.reload();
+  await page.waitForFunction(() => navigator.serviceWorker.controller !== null);
+  await context.setOffline(true);
+  await page.reload({ waitUntil: 'domcontentloaded' });
+  await expect(page).toHaveTitle(/Lesson Packet/);
+  await expect(page.locator('#offline-bar')).toBeVisible();
 });

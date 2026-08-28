@@ -339,7 +339,7 @@ window.addEventListener('offline', updateOfflineState);
 updateOfflineState();
 
 if ('serviceWorker' in navigator && (location.protocol === 'https:' || location.hostname === 'localhost' || location.hostname === '127.0.0.1')) {
-  window.addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => undefined));
+  navigator.serviceWorker.register('/sw.js').catch(() => undefined);
 }
 
 setFormValues();

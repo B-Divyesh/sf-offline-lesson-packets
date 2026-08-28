@@ -6,8 +6,9 @@ self.addEventListener('install', (event) => {
     const cache = await caches.open(CACHE);
     const response = await fetch('/index.html');
     const html = await response.clone().text();
+    const rootResponse = response.clone();
     await cache.put('/index.html', response);
-    await cache.put('/', response.clone());
+    await cache.put('/', rootResponse);
     const assets = Array.from(html.matchAll(/(?:src|href)="(\/[^"#]+)"/g), (match) => match[1]);
     await Promise.allSettled([...new Set([...CORE, ...assets])].map((url) => cache.add(url)));
   })());
