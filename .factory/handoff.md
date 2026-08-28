@@ -1,5 +1,48 @@
 # Lesson Packet v1 handoff
 
+## Independent verification status: FAIL
+
+Verification date: 2026-08-28 UTC
+
+Tested candidate: `e3f83b4af62fc18ebe78dedbbdc29cd1fd0ba867`
+
+Tested deployment: <https://offline-lesson-packets.sociobot.in/>
+Full evidence: [`.factory/verification.md`](verification.md)
+
+The deployed product files match the candidate byte-for-byte and its core
+offline authoring/responding workflow works. It is not release-ready under the
+acceptance contract because composer activity reorder loses keyboard focus and
+the hidden import control draws its focus indicator around “Start over.” Live
+hosting also ignores the committed cache/security header rules, and three fresh
+Lighthouse mobile runs scored 88/79/82 (median 82) against the 90 performance
+gate.
+
+Defects by severity:
+
+- **High:** activity reordering/removal rebuilds the list and drops keyboard
+  focus to `<body>`.
+- **High:** keyboard focus on the hidden template input visibly outlines the
+  unrelated destructive “Start over” control, while the Import label has no
+  focus ring.
+- **Medium:** live hashed assets and service worker use 30-second revalidation;
+  intended immutable/no-cache rules, X-Frame-Options, Permissions-Policy, and
+  no-referrer policy are not applied.
+- **Medium:** fresh live Lighthouse performance median is 82; TBT is 466–964 ms.
+  The runner emitted post-report Chromium crash messages, so repeat in stable CI.
+- **Medium:** visible minute values 0/301 silently export as 1/300 without an
+  error or normalization in the field.
+- **Low:** malformed JSON exposes browser parser jargon.
+- **Low:** axe reports one moderate `landmark-unique` result across the root and
+  its preview iframe; serious/critical findings are zero.
+
+Independent commands passed: `npm ci` (0 vulnerabilities), `npm test` (7 unit,
+10 applicable E2E, 2 intentional skips), and exact `npm run build`. Initial JS
+is 24,870 B; CSS is 14,045 B; mobile hero is 28,556 B. Direct `file://` packet
+use, TXT response export, template validation/sanitization, local persistence,
+storage-denied recovery, print invocation, 1440px/390px rendering, reduced
+motion, live service-worker update check, and offline reload passed. There are
+no server/API, authentication, billing, library, or CLI checks applicable.
+
 Work order: `offline-lesson-packets-build-1`
 
 Completed: 2026-08-28
@@ -72,4 +115,5 @@ Verification completed on 2026-08-28:
 - A future version could add optional choice / matching activity types and a
   printable teacher answer key without changing the one-file privacy model.
 
-There are no blocking gaps for the researched smallest useful product.
+The builder's original statement above is superseded by the independent FAIL
+status and defects at the top of this handoff.
