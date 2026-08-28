@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4ebd8" />
+    <meta name="description" content="Build one-file interactive lesson packets that work offline and keep student responses on their device." />
+    <title>Lesson Packet — make one-file offline activities</title>
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" as="image" href="/assets/hero-risograph-720.webp" type="image/webp" media="(max-width: 720px)" />
+    <script type="module" src="/src/main.ts"></script>
+  </head>
+  <body>
+    <a class="skip-link" href="#main">Skip to main content</a>
+    <div class="offline-bar" id="offline-bar" role="status" hidden>
+      You’re offline. The composer still works; your draft stays on this device.
+    </div>
+    <header class="site-header">
+      <a class="wordmark" href="/" aria-label="Lesson Packet home">
+        <span class="wordmark-mark" aria-hidden="true">LP</span>
+        <span>Lesson Packet</span>
+      </a>
+      <nav aria-label="Main navigation">
+        <a href="#how-it-works">How it works</a>
+        <a class="nav-action" href="#composer">Make a packet</a>
+      </nav>
+    </header>
+
+    <main id="main">
+      <section class="hero" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="eyebrow"><span aria-hidden="true">●</span> Made for the offline classroom</p>
+          <h1 id="hero-title">A small lesson.<br /><em>One durable file.</em></h1>
+          <p class="hero-lede">Compose an activity, reflection, and exit check. Download one interactive HTML packet—no accounts, links, or student data collection.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#composer">Make your packet <span aria-hidden="true">↓</span></a>
+            <span class="microcopy">Free · works in a browser · prints cleanly</span>
+          </div>
+        </div>
+        <figure class="hero-art">
+          <picture>
+            <source media="(max-width: 720px)" srcset="/assets/hero-risograph-720.webp" />
+            <img src="/assets/hero-risograph-1280.webp" width="1280" height="853" alt="A tactile risograph collage of a lesson sheet, checklist, paper strips, pencil, and orange paperclip" decoding="async" fetchpriority="high" />
+          </picture>
+          <figcaption>From loose lesson pieces to one offline packet.</figcaption>
+        </figure>
+      </section>
+
+      <section class="process" id="how-it-works" aria-labelledby="process-title">
+        <p class="section-kicker">The whole handoff</p>
+        <h2 id="process-title">Compose. Download. Pass it on.</h2>
+        <ol>
+          <li><span>1</span><strong>Build the activity</strong><small>Add checklists, ordered steps, and short responses.</small></li>
+          <li><span>2</span><strong>Export one file</strong><small>The packet carries its design and interactions inside.</small></li>
+          <li><span>3</span><strong>Collect a response</strong><small>Learners download a readable text file. Nothing is uploaded.</small></li>
+        </ol>
+      </section>
+
+      <section class="builder-wrap" id="composer" aria-labelledby="composer-title">
+        <div class="builder-heading">
+          <div>
+            <p class="section-kicker">Packet composer</p>
+            <h2 id="composer-title">Assemble the lesson</h2>
+            <p>Your draft is saved only in this browser. Required fields are marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span>.</p>
+          </div>
+          <div class="draft-status" id="draft-status" role="status">Ready</div>
+        </div>
+
+        <div class="builder-grid">
+          <form class="composer-sheet" id="packet-form" novalidate>
+            <div class="error-summary" id="error-summary" role="alert" tabindex="-1" hidden></div>
+
+            <fieldset>
+              <legend><span>01</span> The cover sheet</legend>
+              <div class="field">
+                <label for="lesson-title">Lesson title <span aria-hidden="true">*</span></label>
+                <input id="lesson-title" name="title" required maxlength="100" autocomplete="off" />
+                <p class="field-hint">The packet’s file name and main heading.</p>
+              </div>
+              <div class="field-row">
+                <div class="field">
+                  <label for="lesson-subject">Subject or group</label>
+                  <input id="lesson-subject" name="subject" maxlength="80" autocomplete="off" />
+                </div>
+                <div class="field">
+                  <label for="lesson-time">Estimated minutes</label>
+                  <input id="lesson-time" name="minutes" type="number" min="1" max="300" inputmode="numeric" />
+                </div>
+              </div>
+              <div class="field">
+                <label for="lesson-instructions">Instructions <span aria-hidden="true">*</span></label>
+                <textarea id="lesson-instructions" name="instructions" rows="4" maxlength="1500" required></textarea>
+                <p class="field-hint">Plain text only. Line breaks will be preserved.</p>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>02</span> Activity blocks</legend>
+              <div id="activities" class="activity-list"></div>
+              <div class="empty-activities" id="empty-activities" hidden>
+                <strong>Your activity page is empty.</strong>
+                <p>Add a block below. A checklist is a quick place to start.</p>
+              </div>
+              <div class="add-blocks" aria-label="Add an activity block">
+                <span>Add:</span>
+                <button type="button" class="button button-small button-quiet" data-add="checklist">☑ Checklist</button>
+                <button type="button" class="button button-small button-quiet" data-add="sort">↕ Put in order</button>
+                <button type="button" class="button button-small button-quiet" data-add="write">✎ Short response</button>
+              </div>
+            </fieldset>
+
+            <fieldset>
+              <legend><span>03</span> Wrap-up</legend>
+              <div class="field">
+                <label for="reflection-prompt">Reflection prompt <span aria-hidden="true">*</span></label>
+                <textarea id="reflection-prompt" name="reflection" rows="3" maxlength="500" required></textarea>
+              </div>
+              <div class="field">
+                <label for="exit-prompt">Exit check <span aria-hidden="true">*</span></label>
+                <textarea id="exit-prompt" name="exitPrompt" rows="3" maxlength="500" required></textarea>
+                <p class="field-hint">Learners answer in one or two sentences.</p>
+              </div>
+              <label class="toggle-row" for="remember-responses">
+                <input id="remember-responses" name="allowLocalSave" type="checkbox" />
+                <span><strong>Remember learner progress in their browser</strong><small>Optional. Responses never leave their device and can be cleared inside the packet.</small></span>
+              </label>
+            </fieldset>
+
+            <div class="form-actions">
+              <button class="button button-primary button-export" type="submit">Download lesson packet <span aria-hidden="true">↗</span></button>
+              <button class="button button-secondary" type="button" id="download-template">Save editable template</button>
+              <label class="button button-secondary import-label" for="import-template">Import template</label>
+              <input class="visually-hidden-file" id="import-template" type="file" accept="application/json,.json" />
+              <button class="text-button" type="button" id="reset-draft">Start over</button>
+            </div>
+            <p class="privacy-note"><span aria-hidden="true">◉</span> Exporting happens entirely on this device. You are responsible for content rights and accuracy.</p>
+          </form>
+
+          <aside class="preview-column" aria-labelledby="preview-title">
+            <div class="preview-header">
+              <div><span class="registration" aria-hidden="true"></span><h3 id="preview-title">Packet preview</h3></div>
+              <span>updates as you type</span>
+            </div>
+            <div class="preview-frame-wrap">
+              <iframe id="packet-preview" title="Interactive preview of the lesson packet" sandbox="allow-scripts allow-downloads allow-modals"></iframe>
+            </div>
+            <p class="preview-help">This is the same self-contained file your learners receive. Try the controls here; preview answers reset when the form changes.</p>
+          </aside>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div>
+        <a class="wordmark" href="/"><span class="wordmark-mark" aria-hidden="true">LP</span><span>Lesson Packet</span></a>
+        <p>Built for teaching that doesn’t depend on a connection.</p>
+      </div>
+      <nav aria-label="Legal">
+        <a href="/privacy/">Privacy</a>
+        <a href="/terms/">Terms</a>
+        <a href="https://github.com/B-Divyesh/sf-offline-lesson-packets" rel="noreferrer">Source code</a>
+      </nav>
+      <p class="art-credit">Hero artwork generated for Lesson Packet with Azure AI Foundry. No tracking, accounts, or external runtime requests.</p>
+    </footer>
+    <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+  </body>
+</html>

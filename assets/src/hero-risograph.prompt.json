@@ -1,0 +1,8 @@
+{
+  "date": "2026-08-28",
+  "tool": "/opt/fleet/lib/gen-image.sh",
+  "deployment": "factory-image",
+  "size": "1536x1024",
+  "quality": "high",
+  "prompt": "Use case: stylized-concept. Asset type: wide landing-page hero illustration. Scene: overhead risograph printmaking table with one warm white lesson packet, three offset paper layers, blank checklist marks, movable blank paper strips, a reflection writing area, wooden pencil, and oversized orange paperclip. Style: tactile editorial paper collage, two-pass risograph screenprint, visible soy-ink grain, slightly imperfect registration, cut-paper edges, restrained geometric composition. Composition: landscape, centered packet, generous calm negative paper space, no people. Lighting: flat soft studio light. Palette: warm unbleached paper, deep forest ink, saturated violet, vermilion orange. Constraints: all sheets blank; no legible text, letters, numbers, logos, UI screenshots, gradients, photoreal hands, watermark, or copyrighted characters."
+}
