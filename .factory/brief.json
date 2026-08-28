@@ -1,0 +1,15 @@
+{
+  "slug": "offline-lesson-packets",
+  "title": "Lesson Packet",
+  "territory": "utilities",
+  "user": "Teachers who want to distribute a small activity, reflection, and exit check as one durable offline file without accounts, subscriptions, or data collection.",
+  "smallest_useful_product": "A browser composer that produces one self-contained HTML packet with instructions, sortable/checkable activity blocks, a reflection box, and a download-only response file.",
+  "artifact_class": "static-web",
+  "monetization": "free",
+  "constraints": [
+    "No student data leaves the device",
+    "Sanitize imported templates",
+    "Support printing and low-end browsers",
+    "Teacher must supply licensed content"
+  ]
+}
