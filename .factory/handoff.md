@@ -6,7 +6,7 @@ Completed: 2026-09-06 UTC
 
 Implementation SHA: `ad04d5a77c7cbda2aa166ac7aa875f441d15e826`
 
-Verification documentation SHA: `99327648d6eaf78048ad2c4ad13c179211302ead`
+Verification documentation SHA: `9932764368c157ddd062b309414563b142f9c0ad`
 
 Documentation baseline: `173987e9e823c65d87cbdee7171a0a276046e5ee`
 
