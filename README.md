@@ -24,7 +24,7 @@ all styles and behavior inline; it makes no network requests. Teachers can
 optionally let a packet remember learner progress in that learner's browser.
 Response export is a local `.txt` download.
 
-Imported templates are JSON-only. Their shape, types, counts, and text lengths
+Import a template as JSON. Its shape, types, counts, and text lengths
 are checked before use, and lesson text is never interpreted as HTML.
 
 ## Develop

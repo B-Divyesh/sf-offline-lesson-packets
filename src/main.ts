@@ -1,4 +1,5 @@
 import './styles.css';
+import { bindSkipLink } from './site';
 import { buildPacketHtml } from './packet';
 import {
   newActivity,
@@ -15,6 +16,8 @@ const DRAFT_KEY = 'lesson-packet:teacher-draft:v1';
 const DEMO_DRAFT_KEY = 'demo:lesson-packet:teacher-draft:v1';
 const isDemo = new URLSearchParams(location.search).get('demo') === '1';
 const activeDraftKey = isDemo ? DEMO_DRAFT_KEY : DRAFT_KEY;
+if (isDemo) document.title = 'Demo — Lesson Packet';
+bindSkipLink();
 function mustFind<T extends Element>(selector: string): T {
   const element = document.querySelector<T>(selector);
   if (!element) throw new Error(`The packet composer could not find ${selector}.`);

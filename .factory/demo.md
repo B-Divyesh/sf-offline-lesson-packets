@@ -5,6 +5,10 @@ The demo starts with the realistic “Notice, wonder, connect” small-group
 lesson: a preparation checklist, ordered thinking steps, reflection, and exit
 check. The filled composer and exact learner preview are ready immediately.
 
+The demo banner remains visible while the sample is being edited on
+desktop and phone. It says **Demo — sample data, nothing is saved to your real
+draft** and keeps **Reset demo** and **Start for real** available.
+
 Demo edits use `localStorage` key
 `demo:lesson-packet:teacher-draft:v1`. The real composer uses
 `lesson-packet:teacher-draft:v1`; demo mode never reads or writes that key.

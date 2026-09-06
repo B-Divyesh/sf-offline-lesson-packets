@@ -71,11 +71,12 @@ describe('release policy', () => {
   it('keeps built JavaScript and CSS inside static product budgets', async () => {
     const assets = new URL('../dist/assets/', import.meta.url);
     const files = await readdir(assets);
-    const js = files.find((file) => /^main-.*\.js$/.test(file));
-    const css = files.find((file) => /^styles-.*\.css$/.test(file));
-    expect(js).toBeTruthy();
-    expect(css).toBeTruthy();
-    expect((await stat(new URL(js!, assets))).size).toBeLessThanOrEqual(200_000);
-    expect((await stat(new URL(css!, assets))).size).toBeLessThanOrEqual(50_000);
+    const initialJavaScript = files.filter((file) => file.endsWith('.js'));
+    const stylesheets = files.filter((file) => file.endsWith('.css'));
+    expect(initialJavaScript.length).toBeGreaterThan(0);
+    expect(stylesheets.length).toBeGreaterThan(0);
+    const sizeOf = async (names: string[]) => Promise.all(names.map(async (name) => (await stat(new URL(name, assets))).size));
+    expect((await sizeOf(initialJavaScript)).reduce((total, size) => total + size, 0)).toBeLessThanOrEqual(200_000);
+    expect((await sizeOf(stylesheets)).reduce((total, size) => total + size, 0)).toBeLessThanOrEqual(50_000);
   });
 });

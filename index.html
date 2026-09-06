@@ -36,10 +36,11 @@
         <a href="/?demo=1">Demo</a>
         <a href="#how-it-works">How it works</a>
         <a class="nav-action" href="#composer">Make a packet</a>
+        <a href="/privacy/">Privacy</a>
       </nav>
     </header>
 
-    <main id="main">
+    <main id="main" tabindex="-1">
       <section class="hero" aria-labelledby="hero-title">
         <div class="hero-copy">
           <p class="eyebrow"><span aria-hidden="true">●</span> Made for the offline classroom</p>
@@ -47,7 +48,10 @@
           <p class="hero-lede">Teachers build an activity, reflection, and exit check, then give learners one private file.</p>
           <div class="hero-actions">
             <a class="button button-primary" href="/?demo=1#composer">Try it with sample data <span aria-hidden="true">↓</span></a>
-            <span class="microcopy">Opens a ready-made lesson. Free · no account · stays on this device</span>
+            <div class="sample-details">
+              <p>Opens a ready-made lesson.</p>
+              <ul aria-label="Sample lesson facts"><li>Free</li><li>No account</li><li>Stays on this device</li></ul>
+            </div>
           </div>
         </div>
         <figure class="hero-art">
@@ -55,13 +59,13 @@
             <source media="(max-width: 720px)" srcset="/assets/hero-risograph-720.webp" />
             <img src="/assets/hero-risograph-1280.webp" width="1280" height="853" alt="A tactile risograph collage of a lesson sheet, checklist, paper strips, pencil, and orange paperclip" decoding="async" fetchpriority="high" />
           </picture>
-          <figcaption>From loose lesson pieces to one offline packet.</figcaption>
+          <figcaption>A lesson packet with a checklist, ordered steps, and a writing prompt.</figcaption>
         </figure>
       </section>
 
       <section class="process" id="how-it-works" aria-labelledby="process-title">
-        <p class="section-kicker">The whole handoff</p>
-        <h2 id="process-title">Compose. Download. Pass it on.</h2>
+        <p class="section-kicker">How it works</p>
+        <h2 id="process-title">Make, download, and share a packet</h2>
         <ol>
           <li><span>1</span><strong>Build the activity</strong><small>Add checklists, ordered steps, and short responses.</small></li>
           <li><span>2</span><strong>Export one file</strong><small>The packet carries its design and interactions inside.</small></li>
@@ -104,7 +108,7 @@
               <div class="field">
                 <label for="lesson-instructions">Instructions <span aria-hidden="true">*</span></label>
                 <textarea id="lesson-instructions" name="instructions" rows="4" maxlength="1500" required></textarea>
-                <p class="field-hint">Plain text only. Line breaks will be preserved.</p>
+                <p class="field-hint">Use plain text.</p>
               </div>
             </fieldset>
 
@@ -158,7 +162,7 @@
             <div class="preview-frame-wrap">
               <iframe id="packet-preview" title="Interactive preview of the lesson packet" loading="lazy" sandbox="allow-scripts allow-downloads allow-modals"></iframe>
             </div>
-            <p class="preview-help">This is the same self-contained file your learners receive. Try the controls here; preview answers reset when the form changes.</p>
+            <p class="preview-help">This preview uses the same packet format your learners receive. Try its controls here.</p>
           </aside>
         </div>
       </section>
@@ -174,7 +178,7 @@
         <a href="/terms/">Terms</a>
         <a href="https://github.com/B-Divyesh/sf-offline-lesson-packets" rel="noreferrer" aria-label="Source code (external site)">Source code ↗</a>
       </nav>
-      <p class="art-credit">Hero artwork generated for Lesson Packet with Azure AI Foundry. No tracking, accounts, or external runtime requests.<br />v1.0.1 · Built by Param Factory</p>
+      <p class="art-credit">Hero artwork generated for Lesson Packet with Azure AI Foundry. No tracking, accounts, or external runtime requests.<br />v1.0.2 · Built by Param Factory</p>
     </footer>
     <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
   </body>

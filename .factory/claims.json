@@ -47,5 +47,26 @@
     "where": "composer toggle, learner packet, privacy, README",
     "test": "npm run test:e2e -- --grep @claim:learner-progress",
     "sandbox": "demo entry; enable local save; download packet; serve on local test origin; enter progress; reload; assert restore; clear and assert removal"
+  },
+  {
+    "id": "template-validation",
+    "claim": "Lesson Packet checks a template's shape, activity types, counts, and text limits before import.",
+    "where": "README",
+    "test": "npm run test:e2e -- --grep @claim:template-validation",
+    "sandbox": "demo entry; import malformed shape, unsupported activity type, over-limit activities and items, then a long title; assert each rejection or bounded imported value"
+  },
+  {
+    "id": "imported-text-safe",
+    "claim": "Imported lesson text is never interpreted as HTML.",
+    "where": "README",
+    "test": "npm run test:e2e -- --grep @claim:imported-text-safe",
+    "sandbox": "demo entry; import an image-handler string in every lesson-text field; assert literal preview text, no image element or dialog, and escaped standalone download"
+  },
+  {
+    "id": "teacher-draft-recovery",
+    "claim": "The composer saves the current teacher draft so an accidental refresh does not erase the work.",
+    "where": "Privacy",
+    "test": "npm run test:e2e -- --grep @claim:teacher-draft-recovery",
+    "sandbox": "demo entry; change the title, wait for local save, reload, and assert the changed title returns while demo mode remains active"
   }
 ]

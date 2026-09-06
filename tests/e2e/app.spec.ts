@@ -91,7 +91,43 @@ test('privacy and terms pages are real routes', async ({ page }) => {
   }
   await page.goto('/404.html');
   await expect(page).toHaveTitle('Page not found — Lesson Packet');
-  await expect(page.getByRole('heading', { level: 1 })).toHaveText('That packet page is missing.');
+  await expect(page.getByRole('heading', { level: 1 })).toHaveText('Page not found');
+});
+
+test('skip links move keyboard focus to main content on every route', async ({ page }) => {
+  for (const route of ['/', '/privacy/', '/terms/', '/404.html']) {
+    await page.goto(route);
+    await page.getByRole('link', { name: 'Skip to main content' }).focus();
+    await page.keyboard.press('Enter');
+    await expect(page.locator('main')).toBeFocused();
+  }
+});
+
+test('every page keeps the same primary navigation', async ({ page }) => {
+  const navigationLinks = ['Demo', 'How it works', 'Make a packet', 'Privacy'];
+  for (const route of ['/', '/privacy/', '/terms/', '/404.html']) {
+    await page.goto(route);
+    const navigation = page.getByRole('navigation', { name: 'Main navigation' });
+    await expect(navigation.getByRole('link')).toHaveText(navigationLinks);
+  }
+});
+
+test('first-action explanation and facts use the readable body-text baseline', async ({ page }) => {
+  await page.goto('/');
+  const details = page.locator('.sample-details');
+  await expect(details).toContainText('Opens a ready-made lesson.');
+  await expect(details).toContainText('Free');
+  await expect(details).toContainText('No account');
+  await expect(details).toContainText('Stays on this device');
+  expect(await details.evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize))).toBeGreaterThanOrEqual(16);
+});
+
+test('legal and not-found routes have no serious or critical accessibility violations', async ({ page }) => {
+  for (const route of ['/privacy/', '/terms/', '/404.html']) {
+    await page.goto(route);
+    const results = await new AxeBuilder({ page: page as never }).analyze();
+    expect(results.violations.filter((violation) => ['serious', 'critical'].includes(violation.impact || ''))).toEqual([]);
+  }
 });
 
 test('@claim:offline-reload composer reloads offline after its first visit', async ({ page, context }, testInfo) => {
@@ -169,6 +205,7 @@ test('preview main landmark has a unique accessible name', async ({ page }) => {
 
 test('@claim:free-demo sample lesson opens without an account', async ({ page }) => {
   await page.goto('/?demo=1#composer');
+  await expect(page).toHaveTitle('Demo — Lesson Packet');
   await expect(page.locator('#demo-banner')).toBeVisible();
   await expect(page.locator('#lesson-title')).toHaveValue('Notice, wonder, connect');
   await expect(page.locator('body')).not.toContainText(/sign in|credit card|payment/i);
@@ -180,6 +217,19 @@ test('@claim:free-demo sample lesson opens without an account', async ({ page })
   await page.getByRole('link', { name: 'Start for real' }).click();
   await expect(page).not.toHaveURL(/demo=1/);
   await expect(page.locator('#demo-banner')).toBeHidden();
+});
+
+test('mobile demo label and controls stay available while editing the sample', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile project only');
+  await page.goto('/?demo=1#composer');
+  await page.locator('#packet-preview').scrollIntoViewIfNeeded();
+  const banner = page.locator('#demo-banner');
+  await expect(banner.getByRole('button', { name: 'Reset demo' })).toBeVisible();
+  await expect(banner.getByRole('link', { name: 'Start for real' })).toBeVisible();
+  const box = await banner.boundingBox();
+  expect(box).not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(844);
 });
 
 test('@claim:local-only demo flow sends no content off-origin and does not touch the real draft', async ({ page }) => {
@@ -215,6 +265,87 @@ test('@claim:template-roundtrip editable template downloads and imports from the
   });
   await expect(page.locator('#lesson-title')).toHaveValue('Imported ecosystem lesson');
   await expect(page.locator('#toast')).toHaveText('Template imported and checked.');
+});
+
+test('@claim:template-validation template checks its shape, types, counts, and text limits before use', async ({ page }) => {
+  await page.goto('/?demo=1#composer');
+  const template = {
+    version: 1,
+    title: 'Checked template',
+    subject: 'Science',
+    minutes: 20,
+    instructions: 'Read the source and discuss it.',
+    activities: [{ id: 'source-id', type: 'checklist', prompt: 'Check each step.', options: ['Read', 'Discuss'] }],
+    reflection: 'What did you notice?',
+    exitPrompt: 'What will you do next?',
+    allowLocalSave: false,
+  };
+  const importTemplate = async (name: string, contents: unknown) => {
+    await page.locator('#import-template').setInputFiles({
+      name,
+      mimeType: 'application/json',
+      buffer: Buffer.from(JSON.stringify(contents)),
+    });
+  };
+
+  await importTemplate('bad-shape.json', { version: 1, activities: [null] });
+  await expect(page.locator('#toast')).toHaveText('Activity 1 is not valid.');
+
+  await importTemplate('bad-type.json', { ...template, activities: [{ ...template.activities[0], type: 'video' }] });
+  await expect(page.locator('#toast')).toHaveText('Activity 1 has an unsupported type.');
+
+  await importTemplate('too-many-activities.json', { ...template, activities: Array.from({ length: 21 }, () => template.activities[0]) });
+  await expect(page.locator('#toast')).toHaveText('A template can contain at most 20 activity blocks.');
+
+  await importTemplate('too-many-items.json', { ...template, activities: [{ ...template.activities[0], options: Array.from({ length: 21 }, (_, index) => `Item ${index + 1}`) }] });
+  await expect(page.locator('#toast')).toHaveText('Activity 1 has too many items.');
+
+  await importTemplate('long-title.json', { ...template, title: 'x'.repeat(101) });
+  await expect(page.locator('#toast')).toHaveText('Template imported and checked.');
+  await expect(page.locator('#lesson-title')).toHaveValue('x'.repeat(100));
+});
+
+test('@claim:imported-text-safe imported lesson text stays text in the preview and download', async ({ page }) => {
+  const unsafeText = '<img src=x onerror=alert(1)>';
+  const dialogs: string[] = [];
+  page.on('dialog', (dialog) => { dialogs.push(dialog.message()); void dialog.dismiss(); });
+  await page.goto('/?demo=1#composer');
+  await page.locator('#import-template').setInputFiles({
+    name: 'text-only.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify({
+      version: 1,
+      title: unsafeText,
+      subject: 'Safety check',
+      minutes: 20,
+      instructions: unsafeText,
+      activities: [{ id: 'untrusted-id', type: 'checklist', prompt: unsafeText, options: [unsafeText, 'Read first'] }],
+      reflection: unsafeText,
+      exitPrompt: unsafeText,
+      allowLocalSave: false,
+    })),
+  });
+  await expect(page.locator('#toast')).toHaveText('Template imported and checked.');
+  await page.locator('#packet-preview').scrollIntoViewIfNeeded();
+  const preview = page.locator('#packet-preview').contentFrame();
+  await expect(preview.getByRole('heading', { level: 1 })).toHaveText(unsafeText);
+  await expect(preview.locator('img')).toHaveCount(0);
+  const downloadPromise = page.waitForEvent('download');
+  await page.getByRole('button', { name: /Download lesson packet/ }).click();
+  const download = await downloadPromise;
+  const contents = await readFile((await download.path())!, 'utf8');
+  expect(contents).toContain('&lt;img src=x onerror=alert(1)&gt;');
+  expect(contents).not.toContain('<img src=x onerror=alert(1)>');
+  expect(dialogs).toEqual([]);
+});
+
+test('@claim:teacher-draft-recovery composer changes survive an accidental refresh in the demo sandbox', async ({ page }) => {
+  await page.goto('/?demo=1#composer');
+  await page.locator('#lesson-title').fill('Refresh-proof discussion');
+  await expect(page.locator('#draft-status')).toHaveText('Demo changes kept separate');
+  await page.reload();
+  await expect(page.locator('#lesson-title')).toHaveValue('Refresh-proof discussion');
+  await expect(page.locator('#demo-banner')).toBeVisible();
 });
 
 test('@claim:learner-progress optional learner progress survives reload and can be cleared', async ({ page, context }) => {
