@@ -1,40 +1,29 @@
-# Lesson Packet repair handoff
+# Lesson Packet verification handoff
 
-Work order: `offline-lesson-packets-repair-3`
+Work order: `offline-lesson-packets-verify-4`
 
 Completed: 2026-09-06 UTC
 
 Implementation SHA: `ad04d5a77c7cbda2aa166ac7aa875f441d15e826`
 
-Verification documentation SHA: `9932764368c157ddd062b309414563b142f9c0ad`
-
-Documentation baseline: `173987e9e823c65d87cbdee7171a0a276046e5ee`
+Documentation baseline: `7743be97b71c65fb492c1dfa0cadfe1dda6913a8`
 
 Live URL: <https://offline-lesson-packets.sociobot.in/>
 
 ## Result
 
-**PASS — no known product findings or untested public claims.**
+**PASS — zero findings and zero untested public claims.**
 
 Lesson Packet helps teachers make one small activity, reflection, and exit
 check as a standalone file. It remains free, local-first, and usable offline.
 
-The strict-review finding is repaired at its cause: every primary header link
-now has a minimum `44 × 44` CSS-pixel interactive box. The production **Demo**
-link measures `44 × 44` on a 390×844 phone and `44.45 × 44` on the checked
-desktop viewport. A mobile Playwright regression measures all four primary-nav
-links, so short labels cannot regress below the required touch target.
-
-## What changed
-
-- Added `min-width: 44px` and centered link content in the shared primary-nav
-  link rule. The existing 44px minimum height remains in place.
-- Added an outcome-based mobile browser test that measures each primary-nav
-  link's rendered width and height at 390×844.
+Independent verification confirms the repaired mobile **Demo** link measures
+44×44 CSS px at 390×844; every primary nav link meets the 44 px target. The
+latest report is `.factory/verification-4.md`.
 
 ## Verification
 
-From a new clone of `origin/main` at the implementation SHA:
+From a new clone of `origin/main` at documentation baseline `7743be9`:
 
 ```sh
 npm ci
@@ -52,10 +41,9 @@ same clean clone. All ten claims passed: offline reload, standalone response,
 free sample, local-only isolation, printing, template round-trip, learner
 progress, template validation, safe imported text, and teacher-draft recovery.
 
-The committed static build was deployed to the product's Azure Static Web Apps
-production application. The custom HTTPS origin now byte-matches all 22
-published build files; deployment configuration files `_headers` and
-`staticwebapp.config.json` are intentionally not public files.
+The custom HTTPS origin byte-matches all 22 published build files; deployment
+configuration files `_headers` and `staticwebapp.config.json` are intentionally
+not public files.
 
 Fresh live checks:
 
@@ -65,18 +53,16 @@ Fresh live checks:
 - Fresh desktop and 390×844 phone contexts read the job, audience, and
   **Try it with sample data** action before scrolling. Both opened the
   populated “Notice, wonder, connect” sample with two activity blocks.
-- In both fresh contexts, the sample banner stayed in view after scrolling,
-  reset restored the sample, the separate real-draft key stayed unchanged,
-  and no off-origin request or console error occurred.
+- The sample banner stayed in view after phone scrolling; reset restored the
+  sample, the separate real-draft key stayed unchanged, and no off-origin
+  request or console error occurred.
 - Axe returned zero violations on root, demo, Privacy, Terms, and the designed
   404. The unknown route returned the expected HTTP 404 with one h1 and one
   main landmark.
 - A service-worker-controlled demo reloaded offline with its title, sample
   lesson, activity blocks, and offline message intact.
 - Lighthouse 12.8.2 mobile: Performance 100, Accessibility 100, Best
-  Practices 100, SEO 100; LCP 1.2 s, TBT 30 ms, CLS 0. The newest Lighthouse
-  CLI could not launch against the worker's supplied Chromium; the compatible
-  pinned version was used with explicit headless flags.
+  Practices 100, SEO 100; FCP 904 ms, LCP 946 ms, TBT 33 ms, CLS 0.
 
 ## Earlier findings
 
@@ -86,7 +72,7 @@ All earlier findings recorded in `.factory/verification.md`,
 live checks cover the earlier keyboard-focus, import-focus, cache/header,
 performance, time-boundary, malformed-template, landmark-name, skip-link,
 phone-banner, demo-title, claims-inventory, route-navigation, plain-heading,
-and body-text-baseline findings.
+body-text-baseline, and phone touch-target findings.
 
 ## Known gaps and next steps
 
