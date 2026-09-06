@@ -82,6 +82,22 @@ test('mobile composer has no horizontal overflow and keeps export reachable', as
   await expect(page.getByRole('button', { name: /Download lesson packet/ })).toBeVisible();
 });
 
+test('mobile primary navigation links meet the 44px touch-target minimum', async ({ page }, testInfo) => {
+  test.skip(testInfo.project.name !== 'mobile-chromium', 'mobile project only');
+  await page.goto('/');
+  const targets = await page.getByRole('navigation', { name: 'Main navigation' }).getByRole('link').evaluateAll((links) =>
+    links.map((link) => {
+      const { width, height } = link.getBoundingClientRect();
+      return { label: link.textContent?.trim(), width, height };
+    }),
+  );
+  expect(targets).toHaveLength(4);
+  for (const target of targets) {
+    expect(target.width, `${target.label} link width`).toBeGreaterThanOrEqual(44);
+    expect(target.height, `${target.label} link height`).toBeGreaterThanOrEqual(44);
+  }
+});
+
 test('privacy and terms pages are real routes', async ({ page }) => {
   for (const route of ['/privacy/', '/terms/']) {
     await page.goto(route);
