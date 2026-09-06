@@ -1,29 +1,31 @@
-# Lesson Packet verification handoff
+# Lesson Packet strict review handoff
 
-Work order: `offline-lesson-packets-verify-4`
+Work order: `offline-lesson-packets-review-2`
 
 Completed: 2026-09-06 UTC
 
 Implementation SHA: `ad04d5a77c7cbda2aa166ac7aa875f441d15e826`
 
-Documentation baseline: `7743be97b71c65fb492c1dfa0cadfe1dda6913a8`
+Documentation baseline: `bb1137dc2d4bf09b03b739e132099cc15eda83b0`
 
 Live URL: <https://offline-lesson-packets.sociobot.in/>
 
 ## Result
 
-**PASS — zero findings and zero untested public claims.**
+**FAIL — 1 low-severity finding and zero untested public claims.**
 
-Lesson Packet helps teachers make one small activity, reflection, and exit
-check as a standalone file. It remains free, local-first, and usable offline.
+The teacher-to-learner workflow, one-click sample, real-draft isolation,
+standalone packet, response export, printing, offline reload, routes, privacy,
+keyboard paths, and all declared claims pass. On a 390×844 phone, the
+standalone **← Back to Lesson Packet** link is only 17 CSS px tall on both
+Privacy and Terms. The attached contract requires touch targets to be at least
+44×44 px.
 
-Independent verification confirms the repaired mobile **Demo** link measures
-44×44 CSS px at 390×844; every primary nav link meets the 44 px target. The
-latest report is `.factory/verification-4.md`.
+The strict report is `.factory/review-2.md`. No product code was changed.
 
-## Verification
+## Verification performed
 
-From a new clone of `origin/main` at documentation baseline `7743be9`:
+From a new clone of `origin/main` at `bb1137d`:
 
 ```sh
 npm ci
@@ -33,50 +35,26 @@ npm run build
 npm test
 ```
 
-All commands passed. `npm test` passed 9 unit tests and 45 browser tests with
-5 intentional cross-project skips. The production build contains `dist/index.html`.
+All commands passed. `npm test` passed 9 unit tests and 45 browser tests with 5
+intentional project skips. Every exact command in `.factory/claims.json` was
+then run separately; all ten claims passed.
 
-Every exact command in `.factory/claims.json` was then run separately from that
-same clean clone. All ten claims passed: offline reload, standalone response,
-free sample, local-only isolation, printing, template round-trip, learner
-progress, template validation, safe imported text, and teacher-draft recovery.
+Fresh live checks used separate 1440×1000 desktop and 390×844 phone contexts.
+The demo loaded the realistic sample in one click, kept its banner visible,
+reset correctly, restored an unchanged real draft, exported a 12,639-byte
+standalone packet, and produced a complete 639-byte learner response. No
+off-origin request or unexpected console error occurred.
 
-The custom HTTPS origin byte-matches all 22 published build files; deployment
-configuration files `_headers` and `staticwebapp.config.json` are intentionally
-not public files.
+`verify-url.sh` passed root, demo, Privacy, and Terms. Axe found zero
+violations across those pages and the designed 404. Live service-worker update
+and offline reload passed. All 22 public artifacts byte-match the clean build.
+Lighthouse mobile scored 100 in Performance, Accessibility, Best Practices,
+and SEO; LCP was 1.095 s, TBT 29.5 ms, and CLS 0.
 
-Fresh live checks:
+## Known gap and next step
 
-- `/opt/fleet/lib/verify-url.sh` passed root, demo, Privacy, and Terms with
-  correct titles, `lang=en`, one h1, a main landmark, alt text, labelled
-  buttons, and no console errors.
-- Fresh desktop and 390×844 phone contexts read the job, audience, and
-  **Try it with sample data** action before scrolling. Both opened the
-  populated “Notice, wonder, connect” sample with two activity blocks.
-- The sample banner stayed in view after phone scrolling; reset restored the
-  sample, the separate real-draft key stayed unchanged, and no off-origin
-  request or console error occurred.
-- Axe returned zero violations on root, demo, Privacy, Terms, and the designed
-  404. The unknown route returned the expected HTTP 404 with one h1 and one
-  main landmark.
-- A service-worker-controlled demo reloaded offline with its title, sample
-  lesson, activity blocks, and offline message intact.
-- Lighthouse 12.8.2 mobile: Performance 100, Accessibility 100, Best
-  Practices 100, SEO 100; FCP 904 ms, LCP 946 ms, TBT 33 ms, CLS 0.
-
-## Earlier findings
-
-All earlier findings recorded in `.factory/verification.md`,
-`.factory/verification-2.md`, `.factory/verification-3.md`, and
-`.factory/review-1.md` remain repaired. The clean full browser suite and fresh
-live checks cover the earlier keyboard-focus, import-focus, cache/header,
-performance, time-boundary, malformed-template, landmark-name, skip-link,
-phone-banner, demo-title, claims-inventory, route-navigation, plain-heading,
-body-text-baseline, and phone touch-target findings.
-
-## Known gaps and next steps
-
-No product gap remains. This is intentionally a free static tool: there is no
-backend, account, payment offer, billing dependency, or AI generation feature
-in the researched scope. Future changes should retain the rendered touch-target
-test and re-run every declared claim command from a clean checkout.
+Increase the clickable height of `.legal-main`’s standalone return link to at
+least 44 px on phone and desktop, without changing inline links inside ordinary
+paragraph text. Add a phone regression for the Privacy and Terms return links,
+then rerun the full suite, every claim command, live target measurement, and
+artifact parity before requesting another review.
