@@ -4,8 +4,10 @@ Work order: `offline-lesson-packets-repair-2`
 Completed: 2026-09-06 UTC
 
 Implementation commit: `a015482f28f0182e54688100dc30d0df6d51d64f`
-Documentation: this handoff is a later report-only change; it does not alter
-the deployed product implementation.
+Documentation report commit: `1b94adf99101896f565fc1169bcd0da5f64b26d2`
+
+The documentation report follows the implementation and does not alter the
+deployed product implementation.
 
 Live URL: <https://offline-lesson-packets.sociobot.in/>
 
