@@ -1,49 +1,38 @@
-# Lesson Packet review handoff
+# Lesson Packet repair handoff
 
-Work order: `offline-lesson-packets-review-1`
+Work order: `offline-lesson-packets-repair-3`
 
 Completed: 2026-09-06 UTC
 
-Implementation reviewed: `a015482f28f0182e54688100dc30d0df6d51d64f`
+Implementation SHA: `ad04d5a77c7cbda2aa166ac7aa875f441d15e826`
 
-Documentation baseline: `50adc5850f8bfe1cdd91ef69a635cb5331a87b80`
+Documentation baseline: `173987e9e823c65d87cbdee7171a0a276046e5ee`
 
 Live URL: <https://offline-lesson-packets.sociobot.in/>
 
 ## Result
 
-**FAIL — 1 low-severity finding and zero untested claims.**
+**PASS — no known product findings or untested public claims.**
 
-The full teacher and learner workflow works, all claim commands and quality
-gates pass, and the live deployment matches the implementation. The phone
-header’s **Demo** link measures `38.90625 × 44` CSS pixels at 390×844, below
-the required 44×44 touch target. This report-only review did not change product
-code.
+Lesson Packet helps teachers make one small activity, reflection, and exit
+check as a standalone file. It remains free, local-first, and usable offline.
 
-## What was verified
+The strict-review finding is repaired at its cause: every primary header link
+now has a minimum `44 × 44` CSS-pixel interactive box. The production **Demo**
+link measures `44 × 44` on a 390×844 phone and `44.45 × 44` on the checked
+desktop viewport. A mobile Playwright regression measures all four primary-nav
+links, so short labels cannot regress below the required touch target.
 
-- Fresh desktop and phone contexts showed the job, audience, sample action,
-  and three facts before scrolling.
-- The one-click sample was populated, persistent, resettable, and isolated
-  from an existing real draft. The live packet, learner interaction, printing,
-  and response download worked without off-origin requests.
-- A clean clone passed `npm ci`, lint, typecheck, build, and `npm test` with 9
-  unit and 44 browser tests passing and 4 intended skips.
-- All ten exact commands in `.factory/claims.json` passed. No public claim is
-  untested.
-- Invalid input, time limits, unsafe and malformed imports, oversized imports,
-  corrupt drafts, canceled reset, blocked storage, and learner recovery paths
-  behaved as documented.
-- Root, demo, legal pages, and the expected 404 had correct structure, route
-  titles, navigation, skip-link focus, no console errors, and zero axe
-  violations. Reduced motion and offline reload passed.
-- All 22 published files byte-match the clean build. Security and cache headers
-  match policy.
-- Fresh Lighthouse mobile: 100 Performance, 100 Accessibility, 100 Best
-  Practices, 100 SEO; LCP 1.066 s, TBT 0 ms, CLS 0.
-- Every finding from the first two independent verifications remains repaired.
+## What changed
 
-## Run and verify
+- Added `min-width: 44px` and centered link content in the shared primary-nav
+  link rule. The existing 44px minimum height remains in place.
+- Added an outcome-based mobile browser test that measures each primary-nav
+  link's rendered width and height at 390×844.
+
+## Verification
+
+From a new clone of `origin/main` at the implementation SHA:
 
 ```sh
 npm ci
@@ -53,13 +42,53 @@ npm run build
 npm test
 ```
 
-Run each exact command in `.factory/claims.json` separately. The demo entry is
-<https://offline-lesson-packets.sociobot.in/?demo=1>.
+All commands passed. `npm test` passed 9 unit tests and 45 browser tests with
+5 intentional cross-project skips. The production build contains `dist/index.html`.
 
-## Known gap and next step
+Every exact command in `.factory/claims.json` was then run separately from that
+same clean clone. All ten claims passed: offline reload, standalone response,
+free sample, local-only isolation, printing, template round-trip, learner
+progress, template validation, safe imported text, and teacher-draft recovery.
 
-Increase the phone header **Demo** link’s clickable width to at least 44 CSS
-pixels, then repeat the 390×844 target measurement and the existing mobile
-browser suite. No other product gap or untested claim was found.
+The committed static build was deployed to the product's Azure Static Web Apps
+production application. The custom HTTPS origin now byte-matches all 22
+published build files; deployment configuration files `_headers` and
+`staticwebapp.config.json` are intentionally not public files.
 
-Full evidence and reproduction: `.factory/review-1.md`.
+Fresh live checks:
+
+- `/opt/fleet/lib/verify-url.sh` passed root, demo, Privacy, and Terms with
+  correct titles, `lang=en`, one h1, a main landmark, alt text, labelled
+  buttons, and no console errors.
+- Fresh desktop and 390×844 phone contexts read the job, audience, and
+  **Try it with sample data** action before scrolling. Both opened the
+  populated “Notice, wonder, connect” sample with two activity blocks.
+- In both fresh contexts, the sample banner stayed in view after scrolling,
+  reset restored the sample, the separate real-draft key stayed unchanged,
+  and no off-origin request or console error occurred.
+- Axe returned zero violations on root, demo, Privacy, Terms, and the designed
+  404. The unknown route returned the expected HTTP 404 with one h1 and one
+  main landmark.
+- A service-worker-controlled demo reloaded offline with its title, sample
+  lesson, activity blocks, and offline message intact.
+- Lighthouse 12.8.2 mobile: Performance 100, Accessibility 100, Best
+  Practices 100, SEO 100; LCP 1.2 s, TBT 30 ms, CLS 0. The newest Lighthouse
+  CLI could not launch against the worker's supplied Chromium; the compatible
+  pinned version was used with explicit headless flags.
+
+## Earlier findings
+
+All earlier findings recorded in `.factory/verification.md`,
+`.factory/verification-2.md`, `.factory/verification-3.md`, and
+`.factory/review-1.md` remain repaired. The clean full browser suite and fresh
+live checks cover the earlier keyboard-focus, import-focus, cache/header,
+performance, time-boundary, malformed-template, landmark-name, skip-link,
+phone-banner, demo-title, claims-inventory, route-navigation, plain-heading,
+and body-text-baseline findings.
+
+## Known gaps and next steps
+
+No product gap remains. This is intentionally a free static tool: there is no
+backend, account, payment offer, billing dependency, or AI generation feature
+in the researched scope. Future changes should retain the rendered touch-target
+test and re-run every declared claim command from a clean checkout.
