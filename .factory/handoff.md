@@ -1,59 +1,60 @@
-# Verify teachers can make one offline lesson packet — handoff
+# Lesson Packet repair handoff
 
-Work order: `offline-lesson-packets-verify-2`
+Work order: `offline-lesson-packets-repair-2`
+Completed: 2026-09-06 UTC
 
-Completed: 2026-09-05 UTC
-
-Implementation and documentation baseline:
-`545d9f0ba4e8fcf9233709dfdd0593e82cf6d987`
+Implementation commit: `a015482f28f0182e54688100dc30d0df6d51d64f`
+Documentation: this handoff is a later report-only change; it does not alter
+the deployed product implementation.
 
 Live URL: <https://offline-lesson-packets.sociobot.in/>
 
 ## Result
 
-**FAIL — 7 findings and 3 untested public claims.**
+**PASS.** Teachers can build and download one self-contained lesson packet,
+and the one-click sample remains isolated from real work. The seven findings
+and three missing public claims from `verification-2.md` are repaired.
 
-The main workflow, all seven declared claims, deployment parity, offline reload,
-sample isolation, prior repairs, security headers, bundle budgets, and three
-fresh Lighthouse runs pass. Acceptance is blocked by the findings documented
-in `.factory/verification-2.md`.
+## What changed
 
-## Findings to repair
+- Skip links now move keyboard focus to the main landmark on the landing,
+  Privacy, Terms, and 404 pages.
+- The demo banner remains sticky on a 390px phone and keeps its sample label,
+  **Reset demo**, and **Start for real** controls visible while editing.
+- `/?demo=1` sets the route title to `Demo — Lesson Packet`.
+- The same four primary links now appear in every header: Demo, How it works,
+  Make a packet, and Privacy.
+- Terms, Privacy, the 404 page, and the landing process copy now use direct
+  labels instead of mood or metaphor headings.
+- The first-action explanation and the three facts now use 16px body text and
+  separate plain lines: Free, No account, and Stays on this device.
+- Added three declared, outcome-based browser claims for template validation,
+  imported-text HTML safety, and recovery after an accidental refresh.
+- Updated the catalog description, demo documentation, copy audit, version
+  display, and build-budget test so they reflect the shipped app.
 
-1. High: Skip to main content changes the hash but sends focus to `BODY`.
-2. Medium: the demo label and its reset/exit controls scroll away on a phone.
-3. Medium: `/?demo=1` keeps the landing-page title instead of a demo title.
-4. Medium: three public promises lack exact declared claim tests: full template
-   validation, imported-text HTML safety, and teacher-draft refresh recovery.
-5. Low: header navigation is not consistent across root, legal, and 404 pages.
-6. Low: Terms and 404 include mood/metaphor section kickers.
-7. Low: the first-action explanation and facts render at 13 CSS px instead of
-   the required 16 px body-text baseline.
+## Finding disposition
 
-## Verification completed
+| Prior finding | Current evidence |
+| --- | --- |
+| Skip link left focus on `BODY` | Browser regression covers all four routes; fresh live desktop and phone both focused `MAIN`. |
+| Phone demo label scrolled away | Mobile regression scrolls to the preview and confirms the full banner remains in view. |
+| Demo kept landing title | Demo claim checks the exact `Demo — Lesson Packet` title locally; live URL reports the same title. |
+| Template validation promise unlisted | `@claim:template-validation` imports malformed shape/type/count cases and an over-limit title. |
+| Imported text safety promise unlisted | `@claim:imported-text-safe` proves literal preview text, no image/dialog, and escaped download. |
+| Teacher-draft refresh promise unlisted | `@claim:teacher-draft-recovery` edits, waits for save, reloads, and restores the demo draft. |
+| Header changed between routes | Browser regression reads the same four primary links on root, legal routes, and 404. |
+| Terms and 404 used mood headings | Removed; the 404 heading is `Page not found`. |
+| First-action details were 13px | Browser regression checks the visible first-action details at 16px or greater. |
 
-- Fresh clone at the requested candidate; `npm ci` found 0 vulnerabilities.
-- `npm run lint`, `npm run typecheck`, `npm run build`, and `npm test` passed.
-- Full suite: 9 unit tests, 29 browser tests passed, 3 intended project skips.
-- Every exact command in `.factory/claims.json` passed separately.
-- Fresh 1440×1000 desktop and 390×844 phone browser flows exercised the first
-  screen, demo, reset, exit to real work, normal export, invalid input,
-  boundaries, storage failure, corrupt storage, keyboard focus, reduced motion,
-  legal pages, the designed 404, and offline reload.
-- Demo changes used only `demo:lesson-packet:teacher-draft:v1`; a seeded real
-  draft was unchanged and restored by Start for real.
-- Live root, demo, privacy, terms, 404, and mobile demo axe scans had zero
-  violations. Worker `verify-url.sh` passed all 200 routes.
-- Live root/legal/404 security headers, asset caching, and service-worker
-  no-cache policy match the repository.
-- Twelve representative live files, including the 404 body and hashed assets,
-  match the candidate build byte for byte.
-- Lighthouse live runs: 100/100/100/100 each; LCP 1.056/1.052/1.015 s,
-  TBT 35.5/0.5/0 ms, CLS 0.
-- All seven findings from `.factory/verification.md` have direct passing
-  regression evidence.
+The seven older findings recorded in `.factory/verification.md` remain
+repaired: activity focus restoration, truthful import focus, deployment
+headers/cache policy, live performance, time-boundary feedback, teacher-facing
+JSON errors, and the preview landmark name all pass the full suite.
 
-## Run the same checks
+## Verification
+
+From the documented clean setup:
 
 ```sh
 npm ci
@@ -63,16 +64,76 @@ npm run build
 npm test
 ```
 
-Then run each exact command in `.factory/claims.json`. Open `/` and `/?demo=1`
-in fresh desktop and 390×844 contexts. The detailed reproduction, evidence,
-claim table, and earlier-finding disposition are in
-`.factory/verification-2.md`.
+All commands pass. `npm test` reports 9 unit tests and 44 browser tests passed
+with 4 intended project skips. The final production build creates `dist/` with
+an initial application JavaScript total of 27.25 KB raw / 9.81 KB gzip and CSS
+of 14.79 KB raw / 4.14 KB gzip.
 
-## Handoff files
+Every exact command in `.factory/claims.json` passed after `npm ci`:
 
-- Repository report: `.factory/verification-2.md`
-- Required report copy: `/work/.evidence/qa-report.md`
-- Machine result: `/work/.evidence/qa-result.json`
+```sh
+npm run test:e2e -- --grep @claim:offline-reload
+npm run test:e2e -- --grep @claim:standalone-response
+npm run test:e2e -- --grep @claim:free-demo
+npm run test:e2e -- --grep @claim:local-only
+npm run test:e2e -- --grep @claim:print-packet
+npm run test:e2e -- --grep @claim:template-roundtrip
+npm run test:e2e -- --grep @claim:learner-progress
+npm run test:e2e -- --grep @claim:template-validation
+npm run test:e2e -- --grep @claim:imported-text-safe
+npm run test:e2e -- --grep @claim:teacher-draft-recovery
+```
 
-No product code was modified. A repair pass should address every finding and
-add the three missing declared claim tests before another verification.
+The local and live worker URL checks pass for root, demo, Privacy, and Terms:
+each has a title, `lang="en"`, one `<h1>`, a main landmark, alt text, and no
+browser console errors. Playwright axe checks find no serious or critical
+violations on root, demo, Privacy, Terms, and 404.
+
+Fresh live desktop (1440×1000) and phone (390×844) checks found, before
+scrolling:
+
+- Job: make one lesson packet that works offline.
+- Audience: teachers building an activity, reflection, and exit check for
+  learners.
+- First action: **Try it with sample data**, which opens a ready-made lesson.
+
+Both live contexts loaded the realistic “Notice, wonder, connect” sample,
+kept the banner visible at the preview, stored a demo edit only in the
+`demo:` namespace, reset to the sample, and restored the separate “Private
+real draft” after **Start for real**. Both had no console errors and placed
+skip-link focus on `MAIN`.
+
+The live unknown route returns the expected HTTP 404 with the designed
+`Page not found` page, its own title, main landmark, navigation, and way home.
+This expected status is not a defect.
+
+Live Lighthouse mobile retry: Performance 100, Accessibility 100, Best
+Practices 100, SEO 100; LCP 920 ms, TBT 29 ms, CLS 0. The first run emitted the
+known post-report Chromium tab crash despite complete 100 scores; the retry
+with the bundled headless shell completed cleanly. Evidence is in
+`/work/.evidence/repair-lighthouse-live-retry.json`.
+
+Deployment used `/opt/fleet/lib/deploy-static.sh offline-lesson-packets dist`.
+It reused the existing `sf-offline-lesson-packets` static site and its durable
+configuration. The HTTPS origin now serves `v1.0.2`, the new sample facts, the
+existing CSP/referrer/permissions/frame headers, and `no-cache` for `sw.js`.
+
+## Evidence
+
+- `/work/.evidence/repair-live-root/verify.json`
+- `/work/.evidence/repair-live-demo/verify.json`
+- `/work/.evidence/repair-live-privacy/verify.json`
+- `/work/.evidence/repair-live-terms/verify.json`
+- `/work/.evidence/repair-live-desktop-first.png`
+- `/work/.evidence/repair-live-desktop-demo.png`
+- `/work/.evidence/repair-live-phone-first.png`
+- `/work/.evidence/repair-live-phone-demo.png`
+- `/work/.evidence/repair-lighthouse-live-retry.json`
+- `/work/.evidence/catalog-description.txt`
+
+## Known gaps and next steps
+
+There are no known product gaps in this repair. The researched brief is free;
+there is no paid offer, checkout, backend, account, or external AI feature to
+register or verify. No backend health, tenancy, rate-limit, CLI, library, or
+desktop-artifact check applies to this static web product.
